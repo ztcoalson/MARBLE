@@ -31,6 +31,7 @@ Now the official Code for MultiagentBench has been moved to [MARBLE](https://git
 - [Usage](#usage)
   - [Running the Simulation](#running-the-simulation)
   - [Configuration](#configuration)
+  - [Running with Local HuggingFace Models](#running-with-local-huggingface-models)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -85,6 +86,41 @@ poetry install
 cd scripts
 cd werewolf
 bash run_simulation.sh
+```
+
+## Running with Local HuggingFace Models
+
+Any model on the HuggingFace Hub can be run locally without an API key by prefixing the model ID with `local_hf/` in your config file:
+
+```yaml
+llm: "local_hf/microsoft/Phi-3-mini-4k-instruct"
+
+metrics:
+  evaluate_llm:
+    model: "local_hf/microsoft/Phi-3-mini-4k-instruct"
+```
+
+Install the required dependencies first:
+
+```bash
+pip install transformers accelerate
+```
+
+The model is loaded once at startup using `device_map="auto"`, so it will use a GPU if one is available. Then run as normal:
+
+```bash
+python marble/main.py --config_path marble/configs/your_config.yaml
+```
+
+Per-agent model overrides also support the `local_hf/` prefix, so you can mix local and API models across agents:
+
+```yaml
+llm: "gpt-4o-mini"  # default for most agents
+
+agents:
+  - type: BaseAgent
+    llm: "local_hf/microsoft/Phi-3-mini-4k-instruct"  # override for this agent
+    ...
 ```
 
 #### New branch for each feature
